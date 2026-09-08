@@ -188,8 +188,14 @@ pub fn prune_verts(verts: &Verts, faces: &Faces) -> BTreeMap<usize, usize> {
             })
         })
         .collect();
+    let vert_remove_remap = vert_remove.iter().map(|(&old_idx, &new_idx)| {
+        (old_idx, *verts_remap.get(&new_idx).expect("Expected new index to be in verts_remap"))
+    }).collect::<BTreeMap<usize, usize>>();
+    let verts_remap_combined = verts_remap.into_iter().chain(vert_remove_remap.into_iter()).collect::<BTreeMap<usize, usize>>();
 
-    faces.remap(&verts_remap);
+    trace!("Verts remap: {:?}", verts_remap_combined);
+
+    faces.remap(&verts_remap_combined);
 
     vert_remove
 }
